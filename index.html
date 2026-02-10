@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>llvost</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<style>
+:root{
+  --rose:#D2A1B3;
+  --orchid:#C28EB4;
+  --canvas:#F4EFEA;
+  --violet:#8F6FA8;
+  --mist:#E8DDE6;
+  --white:#ffffff;
+}
+
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:var(--canvas);
+  font-family:'Inter',sans-serif;
+  overflow:hidden;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
+
+.hidden{display:none}
+
+/* ---------- PAGE 1 ---------- */
+#page1{
+  background:linear-gradient(135deg,var(--mist),var(--canvas));
+}
+
+.brand{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3rem,7vw,5.2rem);
+  color:var(--violet);
+  letter-spacing:3px;
+}
+
+.subtitle{
+  margin-top:10px;
+  color:#777;
+  font-size:0.9rem;
+}
+
+.seek{
+  margin-top:42px;
+  padding:14px 52px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.7);
+  border:1px solid rgba(255,255,255,0.9);
+  font-family:'Playfair Display',serif;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+}
+
+/* ---------- PAGE 2 ---------- */
+#page2{
+  background:linear-gradient(180deg,var(--canvas),var(--mist));
+}
+
+.gallery{
+  display:flex;
+  gap:40px;
+  z-index:2;
+}
+
+.photo{
+  width:220px;
+  height:300px;
+  background:white;
+  border-radius:26px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.08);
+  position:relative;
+}
+
+.quote{
+  position:absolute;
+  bottom:14px;
+  width:100%;
+  text-align:center;
+  font-family:'Playfair Display',serif;
+  color:rgba(0,0,0,0.35);
+  font-size:0.9rem;
+}
+
+/* ---------- LYRICS ---------- */
+#lyrics{
+  position:absolute;
+  bottom:8%;
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;
+  color:rgba(0,0,0,0.25);
+  text-align:center;
+  transition:opacity 0.8s ease;
+}
+
+/* ---------- CANVAS ---------- */
+canvas{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+/* ---------- PETALS ---------- */
+.petal{
+  position:absolute;
+  width:22px;
+  height:22px;
+  pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="wind"></canvas>
+
+<!-- PAGE 1 -->
+<div id="page1" class="page">
+  <div class="brand">llvost</div>
+  <div class="subtitle">designed & programmed</div>
+  <button class="seek">Seek In</button>
+
+  <!-- BOY (JOINTED SVG) -->
+  <svg id="boy" width="90" viewBox="0 0 100 180" style="position:absolute;top:-160px">
+    <circle cx="50" cy="22" r="14" fill="#f1c7b5"/>
+    <rect x="38" y="40" width="24" height="50" rx="12" fill="#9bb3c7"/>
+    <line id="ba1" x1="38" y1="58" x2="16" y2="80" stroke="#555" stroke-width="4"/>
+    <line id="ba2" x1="62" y1="58" x2="84" y2="80" stroke="#555" stroke-width="4"/>
+    <line id="bl1" x1="46" y1="90" x2="36" y2="135" stroke="#555" stroke-width="4"/>
+    <line id="bl2" x1="54" y1="90" x2="64" y2="135" stroke="#555" stroke-width="4"/>
+  </svg>
+</div>
+
+<!-- PAGE 2 -->
+<div id="page2" class="page hidden">
+  <div class="gallery">
+    <div class="photo"><div class="quote">الحب نور</div></div>
+    <div class="photo"><div class="quote">قلب واحد</div></div>
+    <div class="photo"><div class="quote">معاً دائماً</div></div>
+  </div>
+
+  <div id="lyrics"></div>
+
+  <!-- GIRL (JOINTED SVG) -->
+  <svg id="girl" width="120" viewBox="0 0 120 200" style="position:absolute;bottom:-60px;right:-140px">
+    <circle cx="60" cy="26" r="14" fill="#f1c7b5"/>
+    <rect x="46" y="44" width="28" height="60" rx="14" fill="#c28eb4"/>
+    <line id="ga1" x1="46" y1="66" x2="18" y2="82" stroke="#555" stroke-width="4"/>
+    <line id="ga2" x1="74" y1="66" x2="102" y2="82" stroke="#555" stroke-width="4"/>
+  </svg>
+</div>
+
+<audio id="song" src="song.mp3"></audio>
+
+<script>
+/* ---------- BOY FALL ---------- */
+gsap.to("#boy",{y:210,duration:2.6,ease:"power2.out"});
+gsap.to("#ba1",{rotation:25,transformOrigin:"38px 58px",repeat:-1,yoyo:true,duration:1.4});
+gsap.to("#ba2",{rotation:-25,transformOrigin:"62px 58px",repeat:-1,yoyo:true,duration:1.4});
+
+/* ---------- PAGE SWITCH ---------- */
+document.querySelector(".seek").onclick=()=>{
+  song.play();
+  gsap.to("#page1",{opacity:0,duration:1,onComplete:()=>{
+    page1.classList.add("hidden");
+    page2.classList.remove("hidden");
+    gsap.from("#page2",{opacity:0,duration:1});
+  }});
+};
+
+/* ---------- GIRL GRAB ---------- */
+gsap.to("#girl",{x:-220,duration:5,ease:"power1.inOut",repeat:-1,yoyo:true});
+
+/* ---------- LYRICS SYNC ---------- */
+const lyrics=[
+  {t:0,  l:"You are the calm in my storm"},
+  {t:12, l:"Every heartbeat knows your name"},
+  {t:25, l:"Time slows when you are near"},
+  {t:38, l:"Love stays, even in silence"}
+];
+
+const lyricBox=document.getElementById("lyrics");
+let li=0;
+song.ontimeupdate=()=>{
+  if(li<lyrics.length && song.currentTime>=lyrics[li].t){
+    lyricBox.style.opacity=0;
+    setTimeout(()=>{
+      lyricBox.textContent=lyrics[li].l;
+      lyricBox.style.opacity=1;
+      li++;
+    },400);
+  }
+};
+
+/* ---------- CANVAS WIND + PETALS ---------- */
+const c=document.getElementById("wind");
+const ctx=c.getContext("2d");
+let W,H;
+function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+resize(); addEventListener("resize",resize);
+
+const petals=[...Array(40)].map(()=>({
+  x:Math.random()*W,
+  y:Math.random()*H,
+  vx:(Math.random()-0.5)*0.3,
+  vy:0.6+Math.random()*0.6,
+  r:6+Math.random()*6,
+  rot:Math.random()*Math.PI
+}));
+
+let wind=0;
+addEventListener("pointermove",e=>wind=(e.clientX-W/2)*0.0005);
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  petals.forEach(p=>{
+    p.vx+=wind;
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.rot+=0.01;
+    if(p.y>H){p.y=-10;p.x=Math.random()*W}
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot);
+    ctx.fillStyle="rgba(194,142,180,0.6)";
+    ctx.beginPath();
+    ctx.moveTo(0,-p.r);
+    ctx.quadraticCurveTo(p.r,p.r,0,p.r*1.6);
+    ctx.quadraticCurveTo(-p.r,p.r,0,-p.r);
+    ctx.fill();
+    ctx.restore();
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
+
+</body>
+</html>
